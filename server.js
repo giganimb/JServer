@@ -12,7 +12,7 @@ const PORT = 3000;
 const db = "mongodb+srv://qwerty:1234567890@cluster0.52o1j.mongodb.net/node-course?retryWrites=true&w=majority";
 
 mongoose
-    .connect(db, { useNewUrlParser: true, useUnifiedTopology: true})
+    .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log("Connected to DB"))
     .catch((error) => console.log(error));
 
@@ -22,22 +22,22 @@ app.listen(PORT, (error) => {
     error ? console.log(error) : console.log(`listening port ${PORT}...`);
 });
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
     // res.send("<h1>Hello world!</h1>");
     const title = 'Home';
-    res.render(createPath("index"), {title});
+    res.render(createPath("index"), { title });
 });
 
 app.get("/contacts", (req, res) => {
     const title = 'Contacts';
     Contact
         .find()
-        .then((contacts) => res.render(createPath("contacts"), {contacts, title}))
+        .then((contacts) => res.render(createPath("contacts"), { contacts, title }))
         .catch((error) => {
             console.log(error);
-            res.render(createPath("error"), {title: "Error"});
+            res.render(createPath("error"), { title: "Error" });
         });
 });
 
@@ -49,45 +49,58 @@ app.get("/posts/:id", (req, res) => {
     const title = 'Post';
     Post
         .findById(req.params.id)
-        .then((post) => res.render(createPath("post"), {post, title}))
+        .then((post) => res.render(createPath("post"), { post, title }))
         .catch((error) => {
             console.log(error);
-            res.render(createPath("error"), {title: "Error"});
+            res.render(createPath("error"), { title: "Error" });
         });
-  });
-  
-  app.get("/posts", (req, res) => {
+});
+
+app.get("/posts", (req, res) => {
     const title = 'Posts';
     Post
         .find()
         .sort({ createdAt: -1 })
-        .then((posts) => res.render(createPath("posts"), {posts, title}))
+        .then((posts) => res.render(createPath("posts"), { posts, title }))
         .catch((error) => {
             console.log(error);
-            res.render(createPath("error"), {title: "Error"});
+            res.render(createPath("error"), { title: "Error" });
         });
-  });
-  
-  app.post("/add-post", (req, res) => {
-    const { title, author, text} = req.body;
-    const post = new Post({title, author, text});
+});
+
+app.delete("/posts/:id", (req, res) => {
+    const title = 'Post';
+    Post
+        .findByIdAndDelete(req.params.id)
+        .then(result => {
+            res.sendStatus(200);
+        })
+        .catch((error) => {
+            console.log(error);
+            res.render(createPath("error"), { title: "Error" });
+        });
+});
+
+app.post("/add-post", (req, res) => {
+    const { title, author, text } = req.body;
+    const post = new Post({ title, author, text });
     post
         .save()
         .then((result) => res.redirect("/posts"))
         .catch((error) => {
             console.log(error);
-            res.render(createPath("error"), {title: "Error"});
+            res.render(createPath("error"), { title: "Error" });
         });
-  });
+});
 
-  app.get("/add-post", (req, res) => {
+app.get("/add-post", (req, res) => {
     const title = 'Add Post';
     res.render(createPath('add-post'), { title });
-  });
+});
 
 
 app.use((req, res) => {
     res
-    .status(404)
-    .render(createPath("error"));
+        .status(404)
+        .render(createPath("error"));
 });
